@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id            String          @id @default(uuid())
+  name          String
+  phone         String          @unique
+  email         String?
+  transactions  Transaction[]
+  stkRequests   StkRequest[]
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  @@map("customers")
+}
+
+model PaymentChannel {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  description   String?
+  transactions  Transaction[]
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  @@map("payment_channels")
+}
+
+model Transaction {
+  id                String          @id @default(uuid())
+  customerId        String          @map("customer_id")
+  channelId         String          @map("channel_id")
+  amount            Decimal         @db.Decimal(10, 2)
+  status            String
+  mpesaReceiptNumber String?        @map("mpesa_receipt_number")
+  transactionDate   DateTime        @default(now()) @map("transaction_date")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @default(now()) @updatedAt @map("updated_at")
+  
+  customer          Customer        @relation(fields: [customerId], references: [id])
+  channel           PaymentChannel  @relation(fields: [channelId], references: [id])
+
+  @@index([customerId])
+  @@index([channelId])
+  @@index([status])
+  @@index([transactionDate])
+  @@map("transactions")
+}
+
+model StkRequest {
+  id                 String         @id @default(uuid())
+  customerId         String         @map("customer_id")
+  checkoutRequestId  String         @unique @map("checkout_request_id")
+  merchantRequestId  String         @map("merchant_request_id")
+  amount             Decimal        @db.Decimal(10, 2)
+  phone              String
+  status             String         @default("pending")
+  resultCode         String?        @map("result_code")
+  resultDesc         String?        @map("result_desc")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @default(now()) @updatedAt @map("updated_at")
+  
+  customer           Customer       @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([status])
+  @@map("stk_requests")
+}
