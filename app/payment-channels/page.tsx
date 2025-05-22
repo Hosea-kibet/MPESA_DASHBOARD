@@ -2,6 +2,9 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { prisma } from "@/lib/db"
 
+export const dynamic = "force-dynamic";
+
+
 export default async function PaymentChannelsPage() {
   const channels = await prisma.paymentChannel.findMany()
 

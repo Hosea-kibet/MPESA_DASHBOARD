@@ -2,6 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { prisma } from "@/lib/db"
 import { PaymentInitiationForm } from "@/components/payment-initiation-form"
 
+export const dynamic = "force-dynamic";
+
+
 export default async function NewPaymentPage() {
   // Get all customers for the dropdown
   const customers = await prisma.customer.findMany({
